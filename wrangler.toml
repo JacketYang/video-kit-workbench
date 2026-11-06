@@ -7,10 +7,11 @@ name = "video-kit-workbench"
 
 # 【要改】compatibility_date：填一个过去的日期（Cloudflare 用它在运行时行为变更时
 #         锁定旧行为）。用今天或更早的日期都行，格式 YYYY-MM-DD。
-compatibility_date = "2026-11-01"
+compatibility_date = "2025-01-01"
 
 # 构建输出目录（本项目是单个自包含 index.html）。
 # 用 Git 连接部署时，Cloudflare 的构建命令在控制台 Pages → Settings → Build 里填
 # `npm run build`，产物目录填 `dist`；用 ./deploy.sh --target cloudflare 手动部署时，
 # 脚本直接把 dist/ 发上去，不需要平台端构建。
-pages_build_output_dir = "dist"
+[assets]
+directory = "./dist"
