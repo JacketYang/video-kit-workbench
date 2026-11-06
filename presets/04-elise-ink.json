@@ -1,0 +1,8 @@
+{
+  "schema": "video-kit.project/1",
+  "name": "爱丽丝 · 墨夜泡泡",
+  "canvas": { "aspect": "9:16", "fps": 30 },
+  "music": { "preset": "elise", "instrument": "bell", "tail": 3 },
+  "text": { "title": "Für Elise", "subtitle": "墨夜里的气泡与水晶铃", "show": true },
+  "scene": { "type": "bubble-keys", "palette": "ink", "params": { "bounce": 1.2, "wobble": 0.7 } }
+}

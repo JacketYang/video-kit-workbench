@@ -1,0 +1,8 @@
+{
+  "schema": "video-kit.project/1",
+  "name": "林间脚步 · 下落音条",
+  "canvas": { "aspect": "9:16", "fps": 30 },
+  "music": { "preset": "forest", "instrument": "marimba" },
+  "text": { "title": "林间脚步", "subtitle": "原创旋律", "show": true },
+  "scene": { "type": "falling-bars", "palette": "forest", "params": { "fall": 2.4 } }
+}

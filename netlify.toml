@@ -1,0 +1,10 @@
+# Netlify 配置：纯静态单文件站点，构建产物只有 dist/index.html
+# 用 Git 连接部署时 Netlify 读这里的 command / publish；用 ./deploy.sh --target netlify
+# 手动部署时，脚本直接发 dist/，这里的配置不影响。
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"

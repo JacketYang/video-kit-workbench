@@ -1,0 +1,15 @@
+# 构建产物 / 依赖 / 部署缓存
+node_modules/
+dist/
+
+# 部署工具生成的本地状态（含项目 id，不含 token）
+.vercel/
+.netlify/
+.wrangler/
+
+# ./deploy.sh --target pack 产出的压缩包
+video-kit-workbench-*.zip
+
+# 杂项
+.DS_Store
+*.log

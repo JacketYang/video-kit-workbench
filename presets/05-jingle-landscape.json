@@ -1,0 +1,8 @@
+{
+  "schema": "video-kit.project/1",
+  "name": "铃儿响叮当 · 横屏音条",
+  "canvas": { "aspect": "16:9", "fps": 30 },
+  "music": { "preset": "jingle", "instrument": "pluck" },
+  "text": { "title": "Jingle Bells", "subtitle": "横屏 16:9 示例", "show": true },
+  "scene": { "type": "falling-bars", "palette": "sakura", "params": { "fall": 2 } }
+}

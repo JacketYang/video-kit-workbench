@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: #0b0d12;
+  color: #e2e8f0;
+  font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2f3d transparent;
+}
+textarea {
+  resize: vertical;
+}
+
+/* 滑杆 */
+.vk-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+}
+.vk-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7c5cff, #d946ef 60%, #2a2f3d 60%);
+  background: #2a2f3d;
+}
+.vk-range::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: #2a2f3d;
+}
+.vk-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 16px;
+  width: 16px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: #c4b5fd;
+  border: 2px solid #7c5cff;
+  box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.15);
+}
+.vk-range::-moz-range-thumb {
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  background: #c4b5fd;
+  border: 2px solid #7c5cff;
+}
+
+.vk-prose h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+}
+.vk-prose h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 1.6rem 0 0.5rem;
+  color: #fde68a;
+}
+.vk-prose h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 1.1rem 0 0.35rem;
+  color: #ddd6fe;
+}
+.vk-prose p,
+.vk-prose li {
+  font-size: 0.85rem;
+  line-height: 1.75;
+  color: #cbd5e1;
+}
+.vk-prose ul,
+.vk-prose ol {
+  padding-left: 1.2rem;
+  margin: 0.3rem 0;
+}
+.vk-prose ul {
+  list-style: disc;
+}
+.vk-prose ol {
+  list-style: decimal;
+}
+.vk-prose code {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.78rem;
+  color: #fcd34d;
+}
+.vk-prose pre {
+  background: #07080c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px;
+  overflow-x: auto;
+  margin: 0.6rem 0;
+}
+.vk-prose pre code {
+  background: none;
+  padding: 0;
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+.vk-prose table {
+  width: 100%;
+  font-size: 0.78rem;
+  border-collapse: collapse;
+  margin: 0.6rem 0;
+}
+.vk-prose th,
+.vk-prose td {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 5px 8px;
+  text-align: left;
+  color: #cbd5e1;
+}
+.vk-prose th {
+  background: rgba(255, 255, 255, 0.04);
+}

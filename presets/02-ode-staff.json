@@ -1,0 +1,8 @@
+{
+  "schema": "video-kit.project/1",
+  "name": "欢乐颂 · 五线谱流光",
+  "canvas": { "aspect": "9:16", "fps": 30 },
+  "music": { "preset": "ode", "instrument": "piano" },
+  "text": { "title": "Ode to Joy", "subtitle": "Beethoven · 光点依次点亮五线谱", "show": true },
+  "scene": { "type": "glow-staff", "palette": "amber", "params": { "glow": 0.8 } }
+}
