@@ -14,6 +14,13 @@
  * 下一手：嫌节奏或钉子，只改本文件的路线和 presets/06-ball-sort.json 的乐谱。不要再把音量调成 0，不要加回和音符无关的球数。
  *       不要删泡泡琴键、五线谱流光、下落音条。
  * 再改：往下追加，不要删上面两条。
+ *
+ * 落款：Grok（xAI）· 2026-11-07
+ * 改动：下落和节奏对不齐。原因是每颗球固定飞 0.5～1.2 秒，还在钉子上一步一顿，顿的时间不是音符。
+ *       改成：上一颗落地的瞬间，下一颗才出发；这一段空隙就是它的全部下落，落到盒子的那一帧才响。
+ *       同一时间只掉一颗。钉子不再挡路，避免多出一拍看不见的碰撞。
+ * 下一手：如果还是觉得慢半拍，先看是不是落点（响）而不是起飞（不响）。不要把飞行时间再写成固定秒数。
+ * 再改：往下追加，不要删上面三条。
  */
 import type { NoteEvent, SceneDef } from "../types";
 import { FONT, clamp, drawBackground, drawOverlay, drawVignette, hexA, hsl, lerp, roundRect } from "../util";
@@ -35,7 +42,9 @@ interface Ball {
   binCount: number;
   release: number;
   arrive: number;
-  pts: { x: number; y: number }[];
+  home: { x: number; y: number };
+  at: { x: number; y: number };
+  side: number;
 }
 
 interface Layout {
@@ -44,13 +53,10 @@ interface Layout {
   bins: number;
   binW: number;
   ballR: number;
-  pegR: number;
   hopper: { x: number; y: number; w: number; h: number };
   trackTop: number;
-  trackBot: number;
   binTop: number;
   binH: number;
-  rows: { x: number; y: number }[][];
 }
 
 const hueOf = (i: number) => BIN_HUES[i % BIN_HUES.length];
@@ -79,30 +85,7 @@ function layoutOf(w: number, h: number, u: number, bins: number, perBin: number)
   const hopperH = Math.max(ballR * 4.8, h * 0.11);
   const hopper = { x: margin, y: h * 0.145, w: innerW, h: hopperH };
   const trackTop = hopper.y + hopper.h + 18 * u;
-  const trackBot = binTop - Math.max(28 * u, ballR * 1.6);
-  const pegRows = 6;
-  const rows: { x: number; y: number }[][] = [];
-  for (let r = 0; r < pegRows; r++) {
-    const count = bins + 1 + (r % 2 === 0 ? 1 : 0);
-    const y = lerp(trackTop, trackBot, (r + 0.5) / pegRows);
-    const row: { x: number; y: number }[] = [];
-    for (let c = 0; c < count; c++) row.push({ x: margin + ((c + 0.5) * innerW) / count, y });
-    rows.push(row);
-  }
-  return {
-    margin,
-    innerW,
-    bins,
-    binW,
-    ballR,
-    pegR: Math.max(3.2 * u, ballR * 0.28),
-    hopper,
-    trackTop,
-    trackBot,
-    binTop,
-    binH,
-    rows,
-  };
+  return { margin, innerW, bins, binW, ballR, hopper, trackTop, binTop, binH };
 }
 
 function hopperXY(i: number, n: number, L: Layout) {
@@ -132,61 +115,39 @@ function slotXY(slot: number, count: number, color: number, L: Layout) {
   };
 }
 
-function nearestPeg(row: { x: number; y: number }[], x: number) {
-  let best = row[0];
-  let d = Infinity;
-  for (const p of row) {
-    const dd = Math.abs(p.x - x);
-    if (dd < d) {
-      d = dd;
-      best = p;
-    }
-  }
-  return best;
-}
-
 function buildBalls(events: NoteEvent[], bins: number, L: Layout): Ball[] {
   const counts = new Array<number>(bins).fill(0);
-  const draft = events.map((e) => {
+  const draft = events.map((e, i) => {
     const color = colorOf(e.midi, events, bins);
     const slot = counts[color];
     counts[color] += 1;
-    const flight = Math.min(1.15, Math.max(0.48, e.t - 0.08));
-    return { i: e.i, midi: e.midi, color, slot, release: e.t - flight, arrive: e.t };
+    const prev = i === 0 ? 0 : events[i - 1].t;
+    return { i: e.i, midi: e.midi, color, slot, release: prev, arrive: e.t };
   });
   return draft.map((b) => {
     const home = hopperXY(b.i, draft.length, L);
-    const slot = slotXY(b.slot, counts[b.color], b.color, L);
-    const nudge = (b.slot - (counts[b.color] - 1) / 2) * L.ballR * 0.22;
-    const pts = [home];
-    L.rows.forEach((row, ri) => {
-      const goal = lerp(home.x, slot.x, (ri + 1) / (L.rows.length + 1));
-      const peg = nearestPeg(row, goal);
-      pts.push({ x: clamp(peg.x + nudge, L.margin + L.ballR, L.margin + L.innerW - L.ballR), y: peg.y });
-    });
-    pts.push(slot);
-    return { ...b, binCount: counts[b.color], pts };
+    const at = slotXY(b.slot, counts[b.color], b.color, L);
+    const side = (b.color % 2 === 0 ? 1 : -1) * L.ballR * 0.85;
+    return { ...b, binCount: counts[b.color], home, at, side };
   });
 }
 
-function place(b: Ball, t: number): { x: number; y: number; hit: boolean } {
-  const home = b.pts[0];
-  const slot = b.pts[b.pts.length - 1];
-  if (t <= b.release) return { ...home, hit: false };
+/** 上一颗落地 = 这一颗出发；这一颗落地 = 这个音。中间不停顿。 */
+function place(b: Ball, t: number): { x: number; y: number; flying: boolean } {
+  if (t <= b.release) return { ...b.home, flying: false };
   if (t >= b.arrive) {
     const age = t - b.arrive;
-    const amp = Math.abs(slot.y - b.pts[b.pts.length - 2].y) * 0.18;
-    const bounce = Math.abs(Math.sin(Math.min(age, 0.32) * 18)) * Math.exp(-age * 8) * amp;
-    return { x: slot.x, y: slot.y - bounce, hit: age < 0.12 };
+    const amp = Math.abs(b.at.y - b.home.y) * 0.045;
+    const bounce = age < 0.12 ? Math.sin((age / 0.12) * Math.PI) * amp * (1 - age / 0.12) : 0;
+    return { x: b.at.x, y: b.at.y - bounce, flying: false };
   }
-  const u = clamp((t - b.release) / Math.max(0.05, b.arrive - b.release), 0, 0.9999);
-  const seg = u * (b.pts.length - 1);
-  const i = Math.floor(seg);
-  const f = seg - i;
-  const g = f * f;
-  const a = b.pts[i];
-  const c = b.pts[i + 1];
-  return { x: lerp(a.x, c.x, g), y: lerp(a.y, c.y, g), hit: f < 0.08 };
+  const u = (t - b.release) / Math.max(0.001, b.arrive - b.release);
+  const g = Math.pow(u, 1.15);
+  return {
+    x: lerp(b.home.x, b.at.x, g) + Math.sin(Math.PI * u) * b.side,
+    y: lerp(b.home.y, b.at.y, g),
+    flying: true,
+  };
 }
 
 function drawBall(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, hue: [number, number, number], alpha = 1) {
@@ -214,8 +175,8 @@ function drawBall(ctx: CanvasRenderingContext2D, x: number, y: number, r: number
 export const ballSort: SceneDef = {
   id: "ball-sort",
   name: "分球机",
-  tagline: "一音一球，落下的时候才响",
-  desc: "每个音符是一颗球。球落到盒子的那一下，就是你听到的音；同一个音永远进同一个盒子。前面几下落进不同的盒子，最后几下把每个盒子填满。球数不要另设，改乐谱就等于改球。钉子只让下落弯一下，落点时间锁在音符上，不是静音配图。",
+  tagline: "落到盒子的那一下才响",
+  desc: "每个音符是一颗球，而且同一时间只掉一颗。上一颗落地响起的瞬间，下一颗才出发；两下之间的空隙就是这一颗的全部下落。落到盒子的那一帧才是这个音。同一个音进同一个盒子。不要再给下落单独设一个秒数。",
   params: [
     {
       key: "bins",
@@ -255,19 +216,6 @@ export const ballSort: SceneDef = {
     ctx.strokeStyle = hexA(pal.line, 0.45);
     ctx.stroke();
 
-    for (const row of L.rows) {
-      for (const peg of row) {
-        ctx.beginPath();
-        ctx.arc(peg.x, peg.y, L.pegR, 0, Math.PI * 2);
-        ctx.fillStyle = hexA(pal.ink, 0.88);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(peg.x - L.pegR * 0.3, peg.y - L.pegR * 0.3, L.pegR * 0.35, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(255,255,255,.55)";
-        ctx.fill();
-      }
-    }
-
     for (let c = 0; c < bins; c++) {
       const x = L.margin + c * L.binW;
       const hue = hueOf(c);
@@ -298,13 +246,12 @@ export const ballSort: SceneDef = {
       .sort((a, c) => a.pt.y - c.pt.y);
     for (const { b, pt } of drawn) {
       const hue = hueOf(b.color);
-      if (t > b.release && t < b.arrive) {
-        for (let k = 2; k >= 1; k--) {
-          const g = place(b, t - k * 0.045);
-          drawBall(ctx, g.x, g.y, L.ballR * (1 - k * 0.08), hue, 0.12);
-        }
+      const r = pt.flying ? L.ballR * 1.08 : L.ballR;
+      if (pt.flying) {
+        const back = place(b, t - (b.arrive - b.release) * 0.08);
+        drawBall(ctx, back.x, back.y, r * 0.92, hue, 0.18);
       }
-      drawBall(ctx, pt.x, pt.y, L.ballR, hue, 1);
+      drawBall(ctx, pt.x, pt.y, r, hue, pt.flying || t >= b.arrive ? 1 : 0.85);
       const age = t - b.arrive;
       if (age >= 0 && age < 0.26) {
         ctx.strokeStyle = hsl(hue, 10, 0.7 * (1 - age / 0.26));
