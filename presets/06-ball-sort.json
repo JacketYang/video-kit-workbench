@@ -4,11 +4,11 @@
   "canvas": { "aspect": "9:16", "fps": 30 },
   "music": {
     "preset": "custom",
-    "notes": "R:11 C4:0.5",
-    "bpm": 60,
-    "volume": 0,
-    "tail": 1.6,
-    "instrument": "pluck",
+    "notes": "C4:0.5 E4:0.5 G4:0.5 B4:0.5 E4:0.5 C4:0.5 B4:0.5 G4:0.5 C4:1 G4:1 E4:1 B4:1 C4:1.5 E4:1.5 G4:1.5 B4:1.5",
+    "bpm": 76,
+    "volume": 0.88,
+    "tail": 2,
+    "instrument": "marimba",
     "repeat": 1
   },
   "lyrics": "",
@@ -20,9 +20,9 @@
   "scene": {
     "type": "ball-sort",
     "palette": "ink",
-    "params": { "balls": 16, "bins": 4, "path": "straight", "gate": "none", "hold": 1 }
+    "params": { "bins": 4 }
   },
   "ext": {
-    "credit": "落款：Grok（xAI）· 2026-11-06。改动：分球机默认模板。静音乐谱把成片定在约 14 秒，音量为 0。下一手：先看 HANDOFF.md 第 9 轮。不要删前面五个音乐模板。"
+    "credit": "落款：Grok（xAI）· 2026-11-06。改动：分球机默认模板。静音乐谱把成片定在约 14 秒，音量为 0。下一手：先看 HANDOFF.md 第 9 轮。不要删前面五个音乐模板。\n落款：Grok（xAI）· 2026-11-07。改动：拆掉静音。这 16 个音就是 16 颗球，木琴，落到盒子才响。后四下放慢，每个盒子各进最后一颗。不要再把 volume 改回 0。"
   }
 }
