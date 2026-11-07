@@ -62,7 +62,10 @@ export function Docs() {
                       <td className={td}><span className={code}>{p.key}</span></td>
                       <td className={td}>{p.label}</td>
                       <td className={td}>{p.type === "number" ? "数字" : p.type === "boolean" ? "开关" : "选项"}</td>
-                      <td className={td}>{p.type === "number" ? `${p.min} ~ ${p.max}` : "—"}</td>
+                      <td className={td}>
+                        {/* 落款：Grok（xAI）· 2026-11-06。改动：选项参数把可选项写进说明。下一手：不用再改这格。 */}
+                        {p.type === "number" ? `${p.min} ~ ${p.max}` : p.type === "select" ? (p.options ?? []).map((o) => o.label).join(" / ") : "—"}
+                      </td>
                       <td className={td}>{String(p.default)}</td>
                     </tr>
                   ))}

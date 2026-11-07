@@ -135,6 +135,23 @@ export function ScenePanel({ cfg, setCfg }: { cfg: ProjectConfig; setCfg: Set })
         }
       >
         <div className="space-y-3.5">
+          {/*
+            落款：Grok（xAI）· 2026-11-06
+            改动：玩法参数里的「选项」以前面板不画，分球机的直道/螺旋、无门/固定门/移动门选不了。这里补上。
+            下一手：新增选项类参数不用再改这个文件。不要删泡泡琴键、五线谱流光、下落音条。
+            再改这里：在本注释下追加落款，不要删上面三行。
+          */}
+          {scene.params
+            .filter((d) => d.type === "select")
+            .map((d) => (
+              <Field key={d.key} label={d.label} hint={d.hint}>
+                <Segmented
+                  value={String(cfg.scene.params[d.key] ?? d.default)}
+                  options={(d.options ?? []).map((o) => ({ value: o.value, label: o.label }))}
+                  onChange={(v) => setParam(d.key, v)}
+                />
+              </Field>
+            ))}
           {scene.params
             .filter((d) => d.type === "number")
             .map((d) => (

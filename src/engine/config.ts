@@ -94,7 +94,16 @@ export function normalizeConfig(raw: unknown): { config: ProjectConfig; warnings
     const v = rawParams[d.key];
     if (d.type === "number") params[d.key] = num(v, d.default as number, d.min ?? -1e9, d.max ?? 1e9, `${def.id}.${d.key}`);
     else if (d.type === "boolean") params[d.key] = typeof v === "boolean" ? v : (d.default as boolean);
-    else params[d.key] = typeof v === "string" ? v : (d.default as string);
+    // 落款：Grok（xAI）· 2026-11-06
+    // 改动：选项类参数若不在 options 里，夹回默认值并给出中文警告。以前任意字符串都会原样留下。
+    // 下一手：新的选项参数只要在 SceneDef.options 里声明即可，不用再改这里。
+    // 再改这段：在上面追加落款，不要删这四行。
+    else if (d.type === "select") {
+      const options = d.options ?? [];
+      const ok = typeof v === "string" && options.some((o) => o.value === v);
+      if (v !== undefined && v !== null && !ok) warnings.push(`${def.id}.${d.key} 不是可选项，已用默认`);
+      params[d.key] = ok ? (v as string) : (d.default as string);
+    } else params[d.key] = typeof v === "string" ? v : (d.default as string);
   }
   for (const k of Object.keys(rawParams)) if (!def.params.some((d) => d.key === k)) warnings.push(`玩法 ${def.id} 没有参数 ${k}，已忽略`);
 

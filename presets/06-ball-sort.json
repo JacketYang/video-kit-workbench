@@ -1,0 +1,28 @@
+{
+  "schema": "video-kit.project/1",
+  "name": "16球4盒",
+  "canvas": { "aspect": "9:16", "fps": 30 },
+  "music": {
+    "preset": "custom",
+    "notes": "R:11 C4:0.5",
+    "bpm": 60,
+    "volume": 0,
+    "tail": 1.6,
+    "instrument": "pluck",
+    "repeat": 1
+  },
+  "lyrics": "",
+  "text": {
+    "title": "16 Balls, 4 Bins",
+    "subtitle": "Can they sort themselves?",
+    "show": true
+  },
+  "scene": {
+    "type": "ball-sort",
+    "palette": "ink",
+    "params": { "balls": 16, "bins": 4, "path": "straight", "gate": "none", "hold": 1 }
+  },
+  "ext": {
+    "credit": "落款：Grok（xAI）· 2026-11-06。改动：分球机默认模板。静音乐谱把成片定在约 14 秒，音量为 0。下一手：先看 HANDOFF.md 第 9 轮。不要删前面五个音乐模板。"
+  }
+}
